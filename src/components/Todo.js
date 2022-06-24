@@ -7,12 +7,12 @@ import Filter from './Filter';
 
 /* カスタムフック */
 import useStorage from '../hooks/storage';
-
+import useFirebaseStorage from '../hooks/firebaseStorage';
 /* ライブラリ */
 import {getKey} from "../lib/util";
 
 function Todo() {
-  const [items, putItems, clearItems] = useStorage();
+  const [items, addItem, updateItem, clearItems] = useFirebaseStorage();
   
   const [filter, setFilter] = React.useState('ALL');
 
@@ -23,18 +23,21 @@ function Todo() {
   });
   
   const handleCheck = checked => {
-    const newItems = items.map(item => {
-      if (item.key === checked.key) {
-        item.done = !item.done;
-      }
-      return item;
-    });
-    putItems(newItems);
+    // const newItems = items.map(item => {
+    //   if (item.key === checked.key) {
+    //     item.done = !item.done;
+    //   }
+    //   return item;
+    // });
+    // putItems(newItems);
+    updateItem(checked);
   };
   
+  
   const handleAdd = text => {
-    putItems([...items, { key: getKey(), text, done: false }]);
-  };
+    const newItem = {key: getKey(), text: text, done: false};
+    addItem(newItem);
+};
   
   const handleFilterChange = value => setFilter(value);
 
