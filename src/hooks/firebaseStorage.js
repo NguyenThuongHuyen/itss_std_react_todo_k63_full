@@ -10,8 +10,9 @@ function useFirebaseStorage() {
   }, [items]);
 
   const getItems = async () => {
-    const _items = await getFirebaseItems();
-    setItems(_items);
+    const res = await getFirebaseItems();
+		if(res.success)
+			setItems(res.items);
   };
 
   const addItem = async item => {

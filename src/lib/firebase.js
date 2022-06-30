@@ -2,18 +2,20 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD-tHz353NOL0ddeMUogI9e9znH56zz-_0",
-    authDomain: "fir-sample-18a11.firebaseapp.com",
-    projectId: "fir-sample-18a11",
-    storageBucket: "fir-sample-18a11.appspot.com",
-    messagingSenderId: "692465114236",
-    appId: "1:692465114236:web:f4b6a29b6fcd61e57c3df9"
-  };
+  apiKey: "AIzaSyDZZuQsG1LQ3eZHfGci00b1VPm2JMSrPE0",
+  authDomain: "todolist-app-eee7c.firebaseapp.com",
+  projectId: "todolist-app-eee7c",
+  storageBucket: "todolist-app-eee7c.appspot.com",
+  messagingSenderId: "958816686505",
+  appId: "1:958816686505:web:2273e0ae9a820ac0f2f4b8"
+};
 
 firebase.initializeApp(firebaseConfig);
 
+const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 export const auth = firebase.auth();
 export default firebase;
@@ -26,10 +28,16 @@ export const getFirebaseItems = async () => {
     const items = snapshot.docs.map(
       (doc) => ({ ...doc.data(), id: doc.id })
     );
-    return items;
+    return {
+			success: true,
+			items: items
+		}
   } catch (err) {
     console.log(err);
-    return [];
+    return {
+			success: false,
+			items: []
+		}
   }
 }
 
@@ -95,13 +103,10 @@ export const updateUser = async (user, image) => {
 }
 
 export const uploadImage = async (image) => {
-  const ref = firebase.storage().ref().child(`/images/${image.name}`);
-  let downloadUrl = "";
-  try {
-    await ref.put(image);
-    downloadUrl = await ref.getDownloadURL();
-  } catch (err) {
-    console.log(err);
-  }
-  return downloadUrl;
-}; 
+  const storage = getStorage(app);
+  // Create a reference to 'mountains.jpg'
+  const mountainsRef = ref(storage, `images/${image.name}`);
+  await uploadBytesResumable(mountainsRef, image)
+  const imageUrl = await getDownloadURL(mountainsRef)
+  return imageUrl
+};
